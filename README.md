@@ -6,6 +6,17 @@ Fill in the tasks in `git-koans/git-koans.py` and run:
 $ ./enlighten.sh
 ```
 
+You interact with the working directory using `koan.shell` method which executes your commands. You can alter the 
+working directory by providing a relative path as the `cwd` argument. Please note that there are no input constraints 
+on the commands you type so type wisely, as they will be executed on the real filesystem. Examples:
+```python
+koan.shell('echo foo > bar')
+koan.shell('mkdir qux')
+koan.shell('touch', cwd='qux')
+```
+
+Each koan starts with an empty working directory unless stated otherwise in the assignment's description.
+
 To increase the verbosity of the output, use:
 ```python
 koan.verbose = True

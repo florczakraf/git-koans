@@ -50,11 +50,11 @@ class Koan:
     def upstream(self):
         return str(self._upstream)
 
-    def shell(self, command):
+    def shell(self, command, cwd='.'):
         if not command:
             pytest.fail('Cannot run an empty command!')
 
-        self._commands.append(delegator.run(command, timeout=Koan.TIMEOUT, cwd=self.workspace))
+        self._commands.append(delegator.run(command, timeout=Koan.TIMEOUT, cwd=os.path.join(self.workspace, cwd)))
 
     def _debug_prints(self):
         buffer = ''
