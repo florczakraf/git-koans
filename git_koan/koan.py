@@ -1,8 +1,13 @@
+from collections import namedtuple
 import os
+import subprocess
 
-import delegator
+
 import git
+import pexpect
 import pytest
+
+Command = namedtuple('Command', ('cmd', 'return_code', 'out', 'err'))
 
 
 class Koan:
@@ -54,7 +59,17 @@ class Koan:
         if not command:
             pytest.fail('Cannot run an empty command!')
 
-        self._commands.append(delegator.run(command, timeout=Koan.TIMEOUT, cwd=os.path.join(self.workspace, cwd)))
+        p = subprocess.Popen(command, shell=True, cwd=os.path.join(self.workspace, cwd),
+                             stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        try:
+            stdout, stderr = p.communicate(timeout=Koan.TIMEOUT)
+            return_code = p.returncode
+        except subprocess.TimeoutExpired:
+            p.kill()
+            stdout, stderr = p.communicate()
+            return_code = 'TIMED OUT'
+
+        self._commands.append(Command(command, return_code, stdout, stderr))
 
     def _debug_prints(self):
         buffer = ''
