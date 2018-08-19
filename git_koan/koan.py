@@ -71,6 +71,10 @@ class Koan:
 
         self._commands.append(Command(command, return_code, stdout, stderr))
 
+    def edit(self, file, cwd='.', editor='editor'):
+        editor = pexpect.spawn(f'{editor} {file}', cwd=os.path.join(self.workspace, cwd))
+        editor.interact()
+
     def _debug_prints(self):
         buffer = ''
         for i, c in enumerate(self._commands):
