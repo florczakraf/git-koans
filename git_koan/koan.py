@@ -8,10 +8,11 @@ import pytest
 class Koan:
     TIMEOUT = 3
 
-    def __init__(self, tmpdir):
+    def __init__(self, tmpdir_factory):
         self.verbose = False
 
-        self._tmpdir = tmpdir
+        self._workspace = tmpdir_factory.mktemp('workspace')
+        self._upstream = tmpdir_factory.mktemp('upstream')
         self._commands = []
 
     def assert_repo(self, relative_path='.'):
@@ -22,23 +23,38 @@ class Koan:
             assert c.return_code == 0, \
                 f'Command "{c.cmd}" finished with a non-zero status ({c.return_code}).' + self._debug_prints()
 
+    def assert_remotes(self, expected_remotes=None, relative_path='.'):
+        assert expected_remotes is not None, 'assert_remotes cannot be called with `None` as `expected_remotes`'
+
+        repo = self.get_repo(relative_path)
+        remotes = {(remote.name, url) for remote in repo.remotes for url in remote.urls}
+        for r in expected_remotes:
+            assert r in remotes, f'Expected remote: {r} is not present in remote urls: {remotes}'
+
+        unexpected_remotes = remotes.difference(expected_remotes)
+        assert not unexpected_remotes, f'There are some unexpected remotes: {unexpected_remotes}'
+
     def get_repo(self, relative_path='.'):
         try:
-            repo = git.Repo(os.path.join(self.tmpdir, relative_path))
+            repo = git.Repo(os.path.join(self.workspace, relative_path))
         except (git.InvalidGitRepositoryError, git.NoSuchPathError):
             repo = None
 
         return repo
 
     @property
-    def tmpdir(self):
-        return str(self._tmpdir)
+    def workspace(self):
+        return str(self._workspace)
+
+    @property
+    def upstream(self):
+        return str(self._upstream)
 
     def shell(self, command):
         if not command:
             pytest.fail('Cannot run an empty command!')
 
-        self._commands.append(delegator.run(command, timeout=Koan.TIMEOUT, cwd=self.tmpdir))
+        self._commands.append(delegator.run(command, timeout=Koan.TIMEOUT, cwd=self.workspace))
 
     def _debug_prints(self):
         buffer = ''
@@ -55,4 +71,4 @@ class Koan:
         if self.verbose:
             return buffer
 
-        return buffer.replace(str(self.tmpdir), '.')
+        return buffer.replace(str(self.workspace), '.')
