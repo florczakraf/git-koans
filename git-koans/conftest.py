@@ -6,6 +6,12 @@ import pytest
 import git_koan
 
 
+@pytest.fixture(autouse=True)
+def visual_separator():
+    yield
+    print('\n\n------------')
+
+
 @pytest.fixture
 def koan(tmpdir_factory):
     return git_koan.Koan(tmpdir_factory)
