@@ -68,11 +68,13 @@ def assert_index_includes_added_file(koan):
     koan.assert_commands()
     koan.assert_repo()
 
-    index = set(file for file, _ in koan.get_repo().index.entries.keys())
+    repo = koan.get_repo()
+    index = set(file for file, _ in repo.index.entries.keys())
     expected_files = {'foo'}
     extra_files = index.difference(expected_files)
 
     assert expected_files.issubset(index), ('Expected to find file `foo` in the index. '
                                             'Current index is {}'.format(index or 'empty'))
-
     assert not extra_files, f'Unexpected files in the index: {extra_files}'
+    assert repo.is_dirty(), 'There are supposed to be uncommitted changes in the repo.'
+    assert not repo.untracked_files, 'There are some files in the working directory that are not under version control'
