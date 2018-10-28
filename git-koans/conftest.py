@@ -37,6 +37,13 @@ def empty_repo(koan):
 
 
 @pytest.fixture
+def set_identity(koan):
+    with koan.repo.config_writer() as config:
+        config.set_value('user', 'name', 'Foo Bar')
+        config.set_value('user', 'email', 'foo.bar@example.com')
+
+
+@pytest.fixture
 def assert_repo_exists(koan):
     yield
     koan.assert_commands()
@@ -109,3 +116,12 @@ def assert_global_identity_set(koan, empty_repo):
     koan.assert_commands()
     config = koan.repo.config_reader('global')
     _assert_identity(config)
+
+
+@pytest.fixture
+def assert_commit_created(koan, empty_repo, set_identity):
+    yield
+    koan.assert_commands()
+    assert koan.repo.head.log(), "There's no commit in the repository"
+    commit = koan.repo.head.commit
+    assert commit.message.strip() == 'init', 'Commit message is expected to be "init"'

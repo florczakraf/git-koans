@@ -38,3 +38,8 @@ def test_set_local_identity(koan, assert_local_identity_set):
 def test_set_global_identity(koan, assert_global_identity_set):
     """ Set name and email to Foo Bar and foo.bar@example.com respectively in global scope """
     koan.shell('')
+
+
+def test_create_commit(koan, assert_commit_created):
+    """ Create commit with the following message: "init". From now on, git identity will be set for you """
+    koan.shell('')
