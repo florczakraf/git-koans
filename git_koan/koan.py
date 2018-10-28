@@ -47,6 +47,11 @@ class Koan:
 
         return repo
 
+    @property
+    def repo(self):
+        """ Convenience wrapper for self.get_repo('.') """
+        return self.get_repo('.')
+
     def _say(self, s):
         if self.verbose:
             print(s)
