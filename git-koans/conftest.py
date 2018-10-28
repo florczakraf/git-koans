@@ -32,6 +32,11 @@ def basic_upstream(koan, tmpdir_factory):
 
 
 @pytest.fixture
+def empty_repo(koan):
+    git.Repo.init(koan.workspace)
+
+
+@pytest.fixture
 def assert_repo_exists(koan):
     yield
     koan.assert_commands()
@@ -77,3 +82,28 @@ def assert_index_includes_added_file(koan):
     assert not extra_files, f'Unexpected files in the index: {extra_files}'
     assert koan.repo.is_dirty(), 'There are supposed to be uncommitted changes in the repo.'
     assert not koan.repo.untracked_files, 'There are some files in the working directory that are not under version control'
+
+
+def _assert_identity(config):
+    expected_name = 'Foo Bar'
+    expected_email = 'foo.bar@example.com'
+
+    assert 'user' in config, 'Git config must inlcude "user" config key'
+    name = config.get('user', 'name', fallback=None)
+    assert name == expected_name, f'Expected user.name to be "{expected_name}", got "{name}" instead'
+    email = config.get('user', 'email', fallback=None)
+    assert email == expected_email, f'Expected user.email to be "{expected_email}", got "{email}" instead'
+
+
+@pytest.fixture
+def assert_local_identity_set(koan, empty_repo):
+    yield
+    config = koan.repo.config_reader('repository')
+    _assert_identity(config)
+
+
+@pytest.fixture
+def assert_global_identity_set(koan, empty_repo):
+    yield
+    config = koan.repo.config_reader('global')
+    _assert_identity(config)

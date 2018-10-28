@@ -26,3 +26,15 @@ def test_add_to_index(koan, assert_index_includes_added_file):
     koan.shell('')
     koan.shell('')
     koan.shell('')
+
+
+def test_set_local_identity(koan, assert_local_identity_set):
+    """ Set name and email to Foo Bar and foo.bar@example.com respectively in project scope. An empty repository has
+        been created in the working directory. This will be a default behavior from now on until stated otherwise.
+    """
+    koan.shell('')
+
+
+def test_set_global_identity(koan, assert_global_identity_set):
+    """ Set name and email to Foo Bar and foo.bar@example.com respectively in global scope """
+    koan.shell('')
