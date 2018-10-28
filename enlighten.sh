@@ -2,7 +2,7 @@
 
 set -e
 
-WORKDIR=$(dirname "$0")
+WORKDIR=$(readlink -f $(dirname "$0"))
 TMPDIR=$(mktemp -d)
 trap "rm -rf ${TMPDIR}" EXIT
 
