@@ -88,7 +88,7 @@ def _assert_identity(config):
     expected_name = 'Foo Bar'
     expected_email = 'foo.bar@example.com'
 
-    assert 'user' in config, 'Git config must inlcude "user" config key'
+    assert 'user' in config, 'Git config must include "user" config key'
     name = config.get('user', 'name', fallback=None)
     assert name == expected_name, f'Expected user.name to be "{expected_name}", got "{name}" instead'
     email = config.get('user', 'email', fallback=None)
@@ -98,6 +98,7 @@ def _assert_identity(config):
 @pytest.fixture
 def assert_local_identity_set(koan, empty_repo):
     yield
+    koan.assert_commands()
     config = koan.repo.config_reader('repository')
     _assert_identity(config)
 
@@ -105,5 +106,6 @@ def assert_local_identity_set(koan, empty_repo):
 @pytest.fixture
 def assert_global_identity_set(koan, empty_repo):
     yield
+    koan.assert_commands()
     config = koan.repo.config_reader('global')
     _assert_identity(config)
